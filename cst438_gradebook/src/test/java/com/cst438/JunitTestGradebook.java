@@ -18,6 +18,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.Optional;
+import java.sql.Date;
 
 import com.cst438.controllers.GradeBookController;
 import com.cst438.domain.Assignment;
@@ -58,6 +59,8 @@ public class JunitTestGradebook {
 	public static final String TEST_INSTRUCTOR_EMAIL = "dwisneski@csumb.edu";
 	public static final int TEST_YEAR = 2021;
 	public static final String TEST_SEMESTER = "Fall";
+	public static final String TEST_NAME = "Assignment 2";
+	//public static final Date DUE_DATE = "02/21/2023";
 
 	@MockBean
 	AssignmentRepository assignmentRepository;
@@ -259,5 +262,11 @@ public class JunitTestGradebook {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	// As an instructor for a course , I can add a new assignment for my course.  The assignment has a name and a due date.
 
+	// As an instructor, I can change the name of the assignment for my course.
+		
+	// As an instructor, I can delete an assignment  for my course (only if there are no grades for the assignment).
+	// work in progress....
 }

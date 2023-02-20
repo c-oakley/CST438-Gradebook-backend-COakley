@@ -29,6 +29,23 @@ public class Assignment {
 	private Date dueDate;
 	private int needsGrading;  // 0 = false,  1= true (past due date and not all students have grades)
 	
+	public Assignment() {}
+	
+	public Assignment(String name, Date dueDate, Course course) {
+		this.name = name;
+		this.dueDate = dueDate;
+		this.course = course;
+		this.needsGrading = 0;
+	}
+	
+	public boolean deleteAssignment(String name) {
+		if (/*objname.?*/assignmentGrades.size() > 0) { return false; }
+		else {
+			// do something
+			return true;
+		}
+	}
+	
 	public int getId() {
 		return id;
 	}

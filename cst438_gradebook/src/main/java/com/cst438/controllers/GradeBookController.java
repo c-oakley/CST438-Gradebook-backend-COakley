@@ -1,5 +1,6 @@
 package com.cst438.controllers;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -168,6 +169,60 @@ public class GradeBookController {
 		}
 		
 		return assignment;
+	}
+	
+	// As an instructor for a course , I can add a new assignment for my course.  The assignment has a name and a due date.
+	@PostMapping()
+	public Assignment createAssignment(int courseId, String email, String name, Date dueDate) {
+		Course courseObj = courseRepository.findById(courseId).orElse(null);
+		if (courseObj == null) {
+			throw new ResponseStatusException( HttpStatus.BAD_REQUEST, "Course not found. " + courseObj );
+		}
+		// check that user is the course instructor
+		if (!courseObj.getInstructor().equals(email)) {
+			throw new ResponseStatusException( HttpStatus.UNAUTHORIZED, "Not Authorized. " );
+		}
+		else {
+			Assignment newAssignment = new Assignment(name, dueDate, courseObj);
+			return newAssignment;
+		}
+	}
+	
+	// As an instructor, I can change the name of the assignment for my course.
+	public Assignment updateAssignmentName(int assigmentId, String email, String name) {
+		Assignment assignmentObj = assignmentRepository.findById(assigmentId).orElse(null);
+		if (assignmentObj == null) {
+			throw new ResponseStatusException( HttpStatus.BAD_REQUEST, "Assignment not found. " + assignmentObj );
+		}
+		// check that user is the course instructor
+		if (!assignmentObj.getCourse().getInstructor().equals(email)) {
+			throw new ResponseStatusException( HttpStatus.UNAUTHORIZED, "Not Authorized. " );
+		}
+		else {
+			assignmentObj.setName(name);
+			return assignmentObj;
+		}
+	}
+	
+	// As an instructor, I can delete an assignment  for my course (only if there are no grades for the assignment).
+	public boolean deleteAssignment(int assigmentId, String email) {
+		Assignment assignmentObj = assignmentRepository.findById(assigmentId).orElse(null);
+		if (assignmentObj == null) {
+			throw new ResponseStatusException( HttpStatus.BAD_REQUEST, "Assignment not found. " + assignmentObj );
+		}
+		// check that user is the course instructor
+		if (!assignmentObj.getCourse().getInstructor().equals(email)) {
+			throw new ResponseStatusException( HttpStatus.UNAUTHORIZED, "Not Authorized. " );
+		}
+		else if (assignmentObj.assignmentGrades().size() > 0) {
+			throw new ResponseStatusException( HttpStatus.UNAUTHORIZED, "Graded assignments are present. " );
+		}
+		else {
+			assignmentRepository.deleteById(assigmentId).orElse(null);
+			return true;
+		}
+		
+		return false;
 	}
 
 }
