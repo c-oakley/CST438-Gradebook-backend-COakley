@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -172,9 +173,12 @@ public class GradeBookController {
 	}
 	
 	// As an instructor for a course , I can add a new assignment for my course.  The assignment has a name and a due date.
-	@PostMapping()
-	public Assignment createAssignment(int courseId, String email, String name, Date dueDate) {
-		Course courseObj = courseRepository.findById(courseId).orElse(null);
+	@PostMapping("/course/{courseID}/createAssignment")
+	public Assignment createAssignment(@PathVariable int courseID, @RequestParam("name") String name, 
+			@RequestParam("dueDate") Date dueDate) {
+		String email = "dwisneski@csumb.edu";
+		Course courseObj = courseRepository.findById(courseID).orElse(null);
+		
 		if (courseObj == null) {
 			throw new ResponseStatusException( HttpStatus.BAD_REQUEST, "Course not found. " + courseObj );
 		}
@@ -189,40 +193,49 @@ public class GradeBookController {
 	}
 	
 	// As an instructor, I can change the name of the assignment for my course.
-	public Assignment updateAssignmentName(int assigmentId, String email, String name) {
-		Assignment assignmentObj = assignmentRepository.findById(assigmentId).orElse(null);
-		if (assignmentObj == null) {
-			throw new ResponseStatusException( HttpStatus.BAD_REQUEST, "Assignment not found. " + assignmentObj );
+	@PostMapping("/course/{courseID}/updateAssignmentName")
+	public Assignment updateAssignmentName(@PathVariable int courseID, @RequestParam("assignmentID") int assignmentID,  
+			@RequestParam("newName") String newName) {
+		String email = "dwisneski@csumb.edu";
+		Course courseObj = courseRepository.findById(courseID).orElse(null);
+		Assignment assignmentObj = assignmentRepository.findById(assignmentID).orElse(null);
+		
+		if ((courseObj == null) || (assignmentObj == null)) {
+			throw new ResponseStatusException( HttpStatus.BAD_REQUEST, "Course/Assignment not found. ");
 		}
 		// check that user is the course instructor
-		if (!assignmentObj.getCourse().getInstructor().equals(email)) {
+		if (!courseObj.getInstructor().equals(email)) {
 			throw new ResponseStatusException( HttpStatus.UNAUTHORIZED, "Not Authorized. " );
 		}
 		else {
-			assignmentObj.setName(name);
+			assignmentObj.setName(newName);
 			return assignmentObj;
 		}
 	}
 	
 	// As an instructor, I can delete an assignment  for my course (only if there are no grades for the assignment).
-	public boolean deleteAssignment(int assigmentId, String email) {
-		Assignment assignmentObj = assignmentRepository.findById(assigmentId).orElse(null);
-		if (assignmentObj == null) {
-			throw new ResponseStatusException( HttpStatus.BAD_REQUEST, "Assignment not found. " + assignmentObj );
+	/*@PostMapping("/course/{courseID}/deleteAssignment")
+	public boolean deleteAssignment(@PathVariable int courseID, @RequestParam("assignmentID") int assignmentID) {
+		String email = "dwisneski@csumb.edu";
+		Course courseObj = courseRepository.findById(courseID).orElse(null);
+		Assignment assignmentObj = assignmentRepository.findById(assignmentID).orElse(null);
+		
+		if ((courseObj == null) || (assignmentObj == null)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Course/Assignment not found.");
 		}
 		// check that user is the course instructor
-		if (!assignmentObj.getCourse().getInstructor().equals(email)) {
-			throw new ResponseStatusException( HttpStatus.UNAUTHORIZED, "Not Authorized. " );
+		if (!courseObj.getInstructor().equals(email)) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not Authorized.");
 		}
 		else if (assignmentObj.assignmentGrades().size() > 0) {
-			throw new ResponseStatusException( HttpStatus.UNAUTHORIZED, "Graded assignments are present. " );
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "Graded assignments are present.");
 		}
 		else {
-			assignmentRepository.deleteById(assigmentId).orElse(null);
+			assignmentRepository.deleteById(assignmentID).orElse(null);
 			return true;
 		}
 		
 		return false;
-	}
+	}*/
 
 }
