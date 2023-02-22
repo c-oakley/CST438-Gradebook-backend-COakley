@@ -38,13 +38,13 @@ public class Assignment {
 		this.needsGrading = 0;
 	}
 	
-	public boolean deleteAssignment(String name) {
-		if (/*objname.?*/assignmentGrades.size() > 0) { return false; }
+	/*public boolean deleteAssignment(String name) {
+		if (objname.?assignmentGrades.size() > 0) { return false; }
 		else {
 			// do something
 			return true;
 		}
-	}
+	}*/
 	
 	public int getId() {
 		return id;

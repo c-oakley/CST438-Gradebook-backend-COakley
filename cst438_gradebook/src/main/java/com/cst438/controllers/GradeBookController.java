@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -172,9 +173,12 @@ public class GradeBookController {
 		return assignment;
 	}
 	
+	//put - update or create new
+	// post - create new
+	
 	// As an instructor for a course , I can add a new assignment for my course.  The assignment has a name and a due date.
 	@PostMapping("/course/{courseID}/createAssignment")
-	public Assignment createAssignment(@PathVariable int courseID, @RequestParam("name") String name, 
+	public String createAssignment(@PathVariable int courseID, @RequestParam("name") String name, 
 			@RequestParam("dueDate") Date dueDate) {
 		String email = "dwisneski@csumb.edu";
 		Course courseObj = courseRepository.findById(courseID).orElse(null);
@@ -188,13 +192,14 @@ public class GradeBookController {
 		}
 		else {
 			Assignment newAssignment = new Assignment(name, dueDate, courseObj);
-			return newAssignment;
+			assignmentRepository.save(newAssignment);
+			return "Success!";
 		}
 	}
 	
 	// As an instructor, I can change the name of the assignment for my course.
-	@PostMapping("/course/{courseID}/updateAssignmentName")
-	public Assignment updateAssignmentName(@PathVariable int courseID, @RequestParam("assignmentID") int assignmentID,  
+	@PutMapping("/course/{courseID}/updateAssignmentName")
+	public String updateAssignmentName(@PathVariable int courseID, @RequestParam("assignmentID") int assignmentID,  
 			@RequestParam("newName") String newName) {
 		String email = "dwisneski@csumb.edu";
 		Course courseObj = courseRepository.findById(courseID).orElse(null);
@@ -209,13 +214,14 @@ public class GradeBookController {
 		}
 		else {
 			assignmentObj.setName(newName);
-			return assignmentObj;
+			assignmentRepository.save(assignmentObj);
+			return "Success!";
 		}
 	}
 	
 	// As an instructor, I can delete an assignment  for my course (only if there are no grades for the assignment).
-	/*@PostMapping("/course/{courseID}/deleteAssignment")
-	public boolean deleteAssignment(@PathVariable int courseID, @RequestParam("assignmentID") int assignmentID) {
+	@DeleteMapping("/course/{courseID}/deleteAssignment")
+	public String deleteAssignment(@PathVariable int courseID, @RequestParam("assignmentID") int assignmentID) {
 		String email = "dwisneski@csumb.edu";
 		Course courseObj = courseRepository.findById(courseID).orElse(null);
 		Assignment assignmentObj = assignmentRepository.findById(assignmentID).orElse(null);
@@ -227,15 +233,13 @@ public class GradeBookController {
 		if (!courseObj.getInstructor().equals(email)) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not Authorized.");
 		}
-		else if (assignmentObj.assignmentGrades().size() > 0) {
+		else if (assignmentGradeRepository.findByAssignmentIdAndStudentEmail(assignmentObj.getId(), email) != null) {
 			throw new ResponseStatusException(HttpStatus.CONFLICT, "Graded assignments are present.");
 		}
 		else {
-			assignmentRepository.deleteById(assignmentID).orElse(null);
-			return true;
+			assignmentRepository.deleteById(assignmentID);
+			return "Success!";
 		}
-		
-		return false;
-	}*/
+	}
 
 }
