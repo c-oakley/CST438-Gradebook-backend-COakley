@@ -394,7 +394,7 @@ public class JunitTestGradebook {
 		assertEquals(200, result.getStatus());
 		
 		//
-		// TEST FAIL CASE - not finished
+		// TEST FAIL CASE 
 		//
 		
 		// create enrollemnt entry in mock repo
