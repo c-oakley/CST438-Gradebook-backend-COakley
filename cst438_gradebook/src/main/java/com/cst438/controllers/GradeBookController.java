@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.cst438.domain.Assignment;
 import com.cst438.domain.AssignmentListDTO;
+import com.cst438.domain.AssignmentListDTO.AssignmentDTO;
 import com.cst438.domain.AssignmentGrade;
 import com.cst438.domain.AssignmentGradeRepository;
 import com.cst438.domain.AssignmentRepository;
@@ -173,16 +174,14 @@ public class GradeBookController {
 		return assignment;
 	}
 	
-	//put - update or create new
-	// post - create new
-	
 	// As an instructor for a course , I can add a new assignment for my course.  The assignment has a name and a due date.
 	@PostMapping("/course/{courseID}/createAssignment")
-	public String createAssignment(@PathVariable int courseID, @RequestParam("name") String name, 
-			@RequestParam("dueDate") Date dueDate) {
+	public String createAssignment(@PathVariable int courseID, @RequestBody AssignmentDTO assignmentDTO) { 
+		//System.out.println("yo");
 		String email = "dwisneski@csumb.edu";
 		Course courseObj = courseRepository.findById(courseID).orElse(null);
 		
+		// check that course is in database
 		if (courseObj == null) {
 			throw new ResponseStatusException( HttpStatus.BAD_REQUEST, "Course not found. " + courseObj );
 		}
@@ -191,7 +190,11 @@ public class GradeBookController {
 			throw new ResponseStatusException( HttpStatus.UNAUTHORIZED, "Not Authorized. " );
 		}
 		else {
-			Assignment newAssignment = new Assignment(name, dueDate, courseObj);
+			//newAssignment.setCourse(courseObj);
+			Assignment newAssignment = new Assignment();
+			newAssignment.setName(assignmentDTO.assignmentName);
+			newAssignment.setDueDate(new java.sql.Date(System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000));
+			newAssignment.setNeedsGrading(1);
 			assignmentRepository.save(newAssignment);
 			return "Success!";
 		}
@@ -199,11 +202,10 @@ public class GradeBookController {
 	
 	// As an instructor, I can change the name of the assignment for my course.
 	@PutMapping("/course/{courseID}/updateAssignmentName")
-	public String updateAssignmentName(@PathVariable int courseID, @RequestParam("assignmentID") int assignmentID,  
-			@RequestParam("newName") String newName) {
+	public String updateAssignmentName(@PathVariable int courseID, @RequestBody AssignmentDTO assignmentDTO) {
 		String email = "dwisneski@csumb.edu";
 		Course courseObj = courseRepository.findById(courseID).orElse(null);
-		Assignment assignmentObj = assignmentRepository.findById(assignmentID).orElse(null);
+		Assignment assignmentObj = assignmentRepository.findById(assignmentDTO.assignmentId).orElse(null);
 		
 		if ((courseObj == null) || (assignmentObj == null)) {
 			throw new ResponseStatusException( HttpStatus.BAD_REQUEST, "Course/Assignment not found. ");
@@ -213,7 +215,7 @@ public class GradeBookController {
 			throw new ResponseStatusException( HttpStatus.UNAUTHORIZED, "Not Authorized. " );
 		}
 		else {
-			assignmentObj.setName(newName);
+			assignmentObj.setName(assignmentDTO.assignmentName);
 			assignmentRepository.save(assignmentObj);
 			return "Success!";
 		}
@@ -221,10 +223,11 @@ public class GradeBookController {
 	
 	// As an instructor, I can delete an assignment  for my course (only if there are no grades for the assignment).
 	@DeleteMapping("/course/{courseID}/deleteAssignment")
-	public String deleteAssignment(@PathVariable int courseID, @RequestParam("assignmentID") int assignmentID) {
+	public String deleteAssignment(@PathVariable int courseID, @RequestBody AssignmentDTO assignmentDTO) {
 		String email = "dwisneski@csumb.edu";
+		String studentEmail = "test@csumb.edu";
 		Course courseObj = courseRepository.findById(courseID).orElse(null);
-		Assignment assignmentObj = assignmentRepository.findById(assignmentID).orElse(null);
+		Assignment assignmentObj = assignmentRepository.findById(assignmentDTO.assignmentId).orElse(null);
 		
 		if ((courseObj == null) || (assignmentObj == null)) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Course/Assignment not found.");
@@ -233,13 +236,12 @@ public class GradeBookController {
 		if (!courseObj.getInstructor().equals(email)) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not Authorized.");
 		}
-		else if (assignmentGradeRepository.findByAssignmentIdAndStudentEmail(assignmentObj.getId(), email) != null) {
+		else if (assignmentGradeRepository.findByAssignmentIdAndStudentEmail(assignmentObj.getId(), studentEmail) != null) {
 			throw new ResponseStatusException(HttpStatus.CONFLICT, "Graded assignments are present.");
 		}
 		else {
-			assignmentRepository.deleteById(assignmentID);
+			assignmentRepository.deleteById(assignmentObj.getId());
 			return "Success!";
 		}
 	}
-
 }

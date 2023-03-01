@@ -9,5 +9,4 @@ import org.springframework.data.repository.query.Param;
 public interface CourseRepository extends CrudRepository <Course, Integer> {
 	@Query("select a from Assignment a where a.id= :assignmentID")
 	Assignment findAssignmentByID(@Param("assignmentID") int assignmentID);
-
 }

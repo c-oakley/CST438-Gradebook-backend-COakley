@@ -31,10 +31,9 @@ public class Assignment {
 	
 	public Assignment() {}
 	
-	public Assignment(String name, Date dueDate, Course course) {
+	public Assignment(String name, Date dueDate) {
 		this.name = name;
 		this.dueDate = dueDate;
-		this.course = course;
 		this.needsGrading = 0;
 	}
 	
