@@ -236,7 +236,8 @@ public class GradeBookController {
 		if (!courseObj.getInstructor().equals(email)) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not Authorized.");
 		}
-		else if (assignmentRepository.findGradesListSize(assignmentObj.getId()) != null) {
+		//else if (assignmentGradeRepository.findByAssignmentIdAndStudentEmail(assignmentObj.getId(), studentEmail) != null) {
+		else if (assignmentObj.getAssignmentGrades() != null) {
 			throw new ResponseStatusException(HttpStatus.CONFLICT, "Graded assignments are present.");
 		}
 		else {

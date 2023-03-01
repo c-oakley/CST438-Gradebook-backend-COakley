@@ -35,6 +35,7 @@ public class Assignment {
 		this.name = name;
 		this.dueDate = dueDate;
 		this.needsGrading = 0;
+		assignmentGrades = new java.util.ArrayList<AssignmentGrade>();
 	}
 	
 	/*public boolean deleteAssignment(String name) {
