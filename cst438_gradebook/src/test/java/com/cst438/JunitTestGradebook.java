@@ -31,6 +31,7 @@ import com.cst438.domain.AssignmentRepository;
 import com.cst438.domain.Course;
 import com.cst438.domain.CourseRepository;
 import com.cst438.domain.Enrollment;
+import com.cst438.domain.EnrollmentRepository;
 import com.cst438.domain.GradebookDTO;
 import com.cst438.domain.AssignmentListDTO.AssignmentDTO;
 import com.cst438.services.RegistrationService;
@@ -75,6 +76,9 @@ public class JunitTestGradebook {
 
 	@MockBean
 	CourseRepository courseRepository; // must have this to keep Spring test happy
+	
+	@MockBean
+	EnrollmentRepository enrollmentRepository; // must have this to keep Spring test happy
 
 	@MockBean
 	RegistrationService registrationService; // must have this to keep Spring test happy
@@ -390,7 +394,7 @@ public class JunitTestGradebook {
 		assertEquals(200, result.getStatus());
 		
 		//
-		// TEST FAIL CASE
+		// TEST FAIL CASE - not finished
 		//
 		
 		// create enrollemnt entry in mock repo
@@ -410,15 +414,20 @@ public class JunitTestGradebook {
 		assignment2.setId(321);
 		assignment2.setName("Assignment 321");
 		assignment2.setNeedsGrading(1);
+		assignment2.setAssignmentGrades(new java.util.ArrayList<AssignmentGrade>());
 
 		// create assignment grade entry in mock repo
 		AssignmentGrade ag = new AssignmentGrade();
 		ag.setAssignment(assignment2);
+		assignment2.getAssignmentGrades().add(ag);
 		ag.setId(321);
 		ag.setScore("");
 		ag.setStudentEnrollment(enrollment);
 		
-		//given(enrollmentRepository.findById(TEST_COURSE_ID)).willReturn(Optional.of(enrollment));
+		// verify object is in the list
+		assertEquals(1, assignment2.getAssignmentGrades().size());
+		
+		given(enrollmentRepository.findById(TEST_COURSE_ID)).willReturn(Optional.of(enrollment));
 		given(assignmentRepository.findById(321)).willReturn(Optional.of(assignment2));
 		given(assignmentGradeRepository.findById(321)).willReturn(Optional.of(ag));
 		
