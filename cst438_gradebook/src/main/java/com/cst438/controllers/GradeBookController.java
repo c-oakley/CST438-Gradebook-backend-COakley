@@ -153,7 +153,6 @@ public class GradeBookController {
 			
 			assignmentGradeRepository.save(ag);
 		}
-		
 	}
 	
 	private Assignment checkAssignment(int assignmentId, String email) {
@@ -169,5 +168,4 @@ public class GradeBookController {
 		
 		return assignment;
 	}
-
 }
