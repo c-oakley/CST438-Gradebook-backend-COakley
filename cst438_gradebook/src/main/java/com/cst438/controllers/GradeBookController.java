@@ -50,7 +50,6 @@ public class GradeBookController {
 	// get assignments for an instructor that need grading
 	@GetMapping("/gradebook")
 	public AssignmentListDTO getAssignmentsNeedGrading( ) {
-		
 		String email = "dwisneski@csumb.edu";  // user name (should be instructor's email) 
 		
 		List<Assignment> assignments = assignmentRepository.findNeedGradingByEmail(email);
@@ -105,7 +104,6 @@ public class GradeBookController {
 		if (!c.getInstructor().equals(email)) {
 			throw new ResponseStatusException( HttpStatus.UNAUTHORIZED, "Not Authorized. " );
 		}
-		
 		CourseDTOG cdto = new CourseDTOG();
 		cdto.course_id = course_id;
 		cdto.grades = new ArrayList<>();
@@ -124,7 +122,6 @@ public class GradeBookController {
 			cdto.grades.add(gdto);
 			System.out.println("Course="+course_id+" Student="+e.getStudentEmail()+" grade="+gdto.grade);
 		}
-		
 		registrationService.sendFinalGrades(course_id, cdto);
 	}
 	
@@ -157,7 +154,6 @@ public class GradeBookController {
 			
 			assignmentGradeRepository.save(ag);
 		}
-		
 	}
 	
 	private Assignment checkAssignment(int assignmentId, String email) {
