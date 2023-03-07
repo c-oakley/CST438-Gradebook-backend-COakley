@@ -29,6 +29,23 @@ public class Assignment {
 	private Date dueDate;
 	private int needsGrading;  // 0 = false,  1= true (past due date and not all students have grades)
 	
+	public Assignment() {}
+	
+	public Assignment(String name, Date dueDate) {
+		this.name = name;
+		this.dueDate = dueDate;
+		this.needsGrading = 0;
+		assignmentGrades = new java.util.ArrayList<AssignmentGrade>();
+	}
+	
+	/*public boolean deleteAssignment(String name) {
+		if (objname.?assignmentGrades.size() > 0) { return false; }
+		else {
+			// do something
+			return true;
+		}
+	}*/
+	
 	public int getId() {
 		return id;
 	}
@@ -53,13 +70,19 @@ public class Assignment {
 	public void setNeedsGrading(int needsGrading) {
 		this.needsGrading = needsGrading;
 	}
-	
 	public Course getCourse() {
 		return course;
 	}
 	public void setCourse(Course course) {
 		this.course = course;
 	}
+	public List<AssignmentGrade> getAssignmentGrades() {
+		return assignmentGrades;
+	}
+	public void setAssignmentGrades(List<AssignmentGrade> assignmentGrades) {
+		this.assignmentGrades = assignmentGrades;
+	}
+	
 	@Override
 	public String toString() {
 		return "Assignment [id=" + id + ", course_id=" + course.getCourse_id() + ", name=" + name + ", dueDate=" + dueDate
