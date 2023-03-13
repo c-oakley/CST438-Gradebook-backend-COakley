@@ -173,7 +173,6 @@ public class GradeBookController {
 	// As an instructor for a course , I can add a new assignment for my course.  The assignment has a name and a due date.
 	@PostMapping("/course/{courseID}/createAssignment")
 	public String createAssignment(@PathVariable int courseID, @RequestBody AssignmentDTO assignmentDTO) { 
-		//System.out.println("yo");
 		String email = "dwisneski@csumb.edu";
 		Course courseObj = courseRepository.findById(courseID).orElse(null);
 		
@@ -191,8 +190,9 @@ public class GradeBookController {
 			newAssignment.setName(assignmentDTO.assignmentName);
 			newAssignment.setDueDate(new java.sql.Date(System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000));
 			newAssignment.setNeedsGrading(1);
+			newAssignment.setCourse(courseObj);
 			assignmentRepository.save(newAssignment);
-			return "Success!";
+			return "{\n\t\"success\":\"Success!\"\n}";
 		}
 	}
 	
@@ -213,7 +213,7 @@ public class GradeBookController {
 		else {
 			assignmentObj.setName(assignmentDTO.assignmentName);
 			assignmentRepository.save(assignmentObj);
-			return "Success!";
+			return "{\n\t\"success\":\"Success!\"\n}";
 		}
 	}
 	
@@ -238,7 +238,7 @@ public class GradeBookController {
 		}
 		else {
 			assignmentRepository.deleteById(assignmentObj.getId());
-			return "Success!";
+			return "{\n\t\"success\":\"Success!\"\n}";
 		}
 	}
 }
