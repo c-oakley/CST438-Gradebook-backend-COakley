@@ -28,13 +28,20 @@ public class EnrollmentController {
 	 * course.
 	 */
 	@PostMapping("/enrollment")
-	@Transactional
+	@Transactional // if anything goes wrong database is rolled back
 	public EnrollmentDTO addEnrollment(@RequestBody EnrollmentDTO enrollmentDTO) {
 		
 		//TODO  complete this method in homework 4
-		
-		return null;
-		
+		Enrollment e = new Enrollment();
+		e.setStudentEmail(enrollmentDTO.studentEmail);
+		e.setStudentName(enrollmentDTO.studentName);
+		Course c = courseRepository.findById(enrollmentDTO.course_id).orElse(null);
+		if (c == null) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Course id not found."); }
+			// make sure course is valid, if not status code and error message
+		e.setCourse(c);
+		e = enrollmentRepository.save(e); // save object ot database
+		enrollmentDTO.id = e.getId();
+		return enrollmentDTO;
 	}
 
 }
