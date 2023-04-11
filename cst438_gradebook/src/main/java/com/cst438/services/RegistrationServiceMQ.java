@@ -19,10 +19,6 @@ import com.cst438.domain.CourseRepository;
 import com.cst438.domain.Enrollment;
 import com.cst438.domain.EnrollmentDTO;
 import com.cst438.domain.EnrollmentRepository;
-import com.cst438.dto.MultiplyProblem;
-import com.cst438.dto.MultiplyResult;
-import com.cst438.dto.v2.MultiplyResultV2;
-import com.cst438.dto.v2.UserDTO;
 
 
 public class RegistrationServiceMQ extends RegistrationService {
@@ -81,32 +77,3 @@ public class RegistrationServiceMQ extends RegistrationService {
 		System.out.println("Final grades have been sent");
 	}
 }
-
-/*
-@PostMapping("/v2/result")
-	public MultiplyResultV2 checkV2(@RequestBody MultiplyProblem mp) {
-		System.out.println("check called");
-		MultiplyResult mr = checker.check(mp);
-		if (mp.alias != null && mp.alias.trim().length() != 0) {
-			mr = history.save(mr);
-		}
-
-		// send the attempt as message to LEVEL service 
-		System.out.println("Sending rabbitmq message: "+ mr);
-		rabbitTemplate.convertAndSend(queue.getName(), mr);
-		System.out.println("Message sent.");
-
-		// get user level from LEVEL service.   Level service returns a String value.
-		RestTemplate restTemplate = new RestTemplate();
-		ResponseEntity<UserDTO> response = restTemplate.getForEntity("http://localhost:8081/v1/user/" + mp.alias,
-				UserDTO.class);
-		UserDTO userDTO = response.getBody();
-		String level = userDTO.level;
-		
-		// create response to caller.
-		MultiplyResultV2 mrv2 = new MultiplyResultV2(mr, level);
-		return mrv2;
-	}
-
-
-*/
