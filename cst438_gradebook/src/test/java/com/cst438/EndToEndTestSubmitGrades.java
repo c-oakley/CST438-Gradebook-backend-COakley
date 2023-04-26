@@ -42,13 +42,14 @@ import com.cst438.domain.EnrollmentRepository;
 @SpringBootTest
 public class EndToEndTestSubmitGrades {
 
-	public static final String CHROME_DRIVER_FILE_LOCATION = "C:/chromedriver_win32/chromedriver.exe";
-
+	public static final String CHROME_DRIVER_FILE_LOCATION 
+				= "C:\\Users\\oakle\\OneDrive\\CSUMB\\2023\\Sw Engineering\\Lectures\\end_to_end\\chromedriver_win32\\chromedriver.exe";
 	public static final String URL = "http://localhost:3000";
 	public static final String TEST_USER_EMAIL = "test@csumb.edu";
 	public static final String TEST_INSTRUCTOR_EMAIL = "dwisneski@csumb.edu";
 	public static final int SLEEP_DURATION = 1000; // 1 second.
 	public static final String TEST_ASSIGNMENT_NAME = "Test Assignment";
+	public static final String TEST_ASSIGNMENT_DUE_DATE = "2023-04-26";
 	public static final String TEST_COURSE_TITLE = "Test Course";
 	public static final String TEST_STUDENT_NAME = "Test";
 
@@ -66,7 +67,6 @@ public class EndToEndTestSubmitGrades {
 
 	@Test
 	public void addCourseTest() throws Exception {
-
 //		Database setup:  create course		
 		Course c = new Course();
 		c.setCourse_id(99999);
@@ -114,7 +114,6 @@ public class EndToEndTestSubmitGrades {
 
 		driver.get(URL);
 		Thread.sleep(SLEEP_DURATION);
-		
 
 		try {
 			/*
@@ -177,11 +176,9 @@ public class EndToEndTestSubmitGrades {
 			// verify that assignment_grade has been added to database with score of 99.9
 			ag = assignnmentGradeRepository.findByAssignmentIdAndStudentEmail(a.getId(), TEST_USER_EMAIL);
 			assertEquals("99.9", ag.getScore());
-
 		} catch (Exception ex) {
 			throw ex;
 		} finally {
-
 			/*
 			 *  clean up database so the test is repeatable.
 			 */
@@ -193,6 +190,74 @@ public class EndToEndTestSubmitGrades {
 
 			driver.quit();
 		}
+	}
+	
+	@Test
+	public void createAssignmentTest() throws Exception {
+		// Database setup:  create course		
+		Course testCourseObj = new Course();
+		testCourseObj.setCourse_id(99999);
+		testCourseObj.setInstructor(TEST_INSTRUCTOR_EMAIL);
+		testCourseObj.setSemester("Fall");
+		testCourseObj.setYear(2021);
+		testCourseObj.setTitle(TEST_COURSE_TITLE);
 
+		courseRepository.save(testCourseObj);
+		Course findCourseObj = courseRepository.findById(testCourseObj.getCourse_id()).orElse(null);
+		// verify courseObj is saved in db
+		assertEquals(testCourseObj.getCourse_id(), findCourseObj.getCourse_id());
+		// System.out.println("course obj " + findCourseObj);
+		
+		Assignment findAssignmentObj = null;
+
+		System.setProperty("webdriver.chrome.driver", CHROME_DRIVER_FILE_LOCATION);
+		WebDriver driver = new ChromeDriver();
+		// Puts an Implicit wait for 10 seconds before throwing exception
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
+		driver.get(URL);
+		Thread.sleep(SLEEP_DURATION);
+
+		try {
+			WebElement we;
+			driver.findElement(By.id("createAssignmentBtn")).click();
+			Thread.sleep(SLEEP_DURATION);
+			
+			we = driver.findElement(By.id("assignmentName"));
+			we.sendKeys(TEST_ASSIGNMENT_NAME);
+			
+			we = driver.findElement(By.id("dueDate"));
+			we.sendKeys(TEST_ASSIGNMENT_DUE_DATE);
+			
+			String sendCourseID = Integer.toString(testCourseObj.getCourse_id());
+			we = driver.findElement(By.id("courseID"));
+			we.sendKeys(sendCourseID);
+			
+			driver.findElement(By.id("createAssignment")).click();
+			Thread.sleep(10000);
+			
+			List<Assignment> listOfAssignmentObjs = assignmentRepository.findByAssignmentName(TEST_ASSIGNMENT_NAME);
+			System.out.println("size " + listOfAssignmentObjs.size());	
+			for (Assignment ele : listOfAssignmentObjs) {
+				System.out.println(ele);
+				if (ele.getCourse().getCourse_id() == testCourseObj.getCourse_id()) {
+					findAssignmentObj = ele;
+				}
+			}
+			System.out.println("assignment obj " + findAssignmentObj);			
+		} catch (Exception exception) {
+			throw exception;
+		} finally {
+			/*
+			 *  clean up database so the test is repeatable.
+			 */
+			if (findAssignmentObj != null) {
+				assignmentRepository.delete(findAssignmentObj);
+			}
+			courseRepository.delete(testCourseObj);
+
+			driver.close();
+			driver.quit();
+		}
 	}
 }
